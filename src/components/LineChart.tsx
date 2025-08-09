@@ -1,5 +1,5 @@
 // src/shared/LineChart.tsx
-import React, {useRef, useEffect} from "react";
+import {useRef, useEffect} from "react";
 import * as d3 from "d3";
 
 type MetricPoint = { ts: number; [k: string]: number | undefined };

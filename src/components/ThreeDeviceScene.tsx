@@ -1,5 +1,5 @@
 // src/shared/ThreeDeviceScene.tsx
-import React, { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 
 type Props = { trigger: any | null };
@@ -9,7 +9,7 @@ function PulsingSphere({ trigger }: { trigger: any | null }) {
   const scaleRef = useRef(1);
   const lastTriggerId = useRef<string | number | null>(null);
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (mesh.current) {
       // continuous slow rotation
       mesh.current.rotation.y += delta * 0.4;

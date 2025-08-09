@@ -9,15 +9,16 @@ import { getDatabase } from "firebase/database";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAy-ElSswFhDrejhXcs_MsUaWgG-2cnbGM",
-  authDomain: "cryonics-em.firebaseapp.com",
-  databaseURL: "https://cryonics-em-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "cryonics-em",
-  storageBucket: "cryonics-em.firebasestorage.app",
-  messagingSenderId: "907895762193",
-  appId: "1:907895762193:web:5122aecfcbefbf309d70b0",
-  measurementId: "G-REF63WLHL7"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY as string,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN as string,
+  databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL as string,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID as string,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET as string,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID as string,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID as string,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID as string,
 };
+
 
 // Initialize Firebase
 let app;

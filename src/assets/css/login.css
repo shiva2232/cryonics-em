@@ -1,0 +1,74 @@
+/* Container - centers content */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #f0f4f8, #d9e4ec);
+  font-family: Arial, sans-serif;
+}
+
+/* Card */
+.auth-card {
+  background: #fff;
+  padding: 2rem 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 100%;
+  max-width: 380px;
+}
+
+/* Title */
+.auth-title {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+/* Subtitle */
+.auth-subtitle {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+/* Google button */
+.google-auth-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 0.7rem 1rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  color: #555;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+
+.google-auth-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.google-auth-btn:hover {
+  background: #f8f8f8;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .auth-card {
+    padding: 1.5rem;
+  }
+  .auth-title {
+    font-size: 1.5rem;
+  }
+  .auth-subtitle {
+    font-size: 0.9rem;
+  }
+}

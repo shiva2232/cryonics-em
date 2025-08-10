@@ -11,6 +11,7 @@ import PayloadUploadModal from "../components/PayloadUploadModal";
 type DeviceData = {
   name?: string;
   deviceType?: string;
+  ip?: string;
   signals?: Record<string, number>;
   commands?: {
     action: string,
@@ -25,6 +26,26 @@ type DeviceData = {
   // ...other fields
 }
 
+interface IpData {
+  ip: string;
+  success: boolean;
+  type: "IPv4" | "IPv6";
+  continent: string;
+  country: string;
+  country_code?: string;
+  region: string;
+  city: string;
+  postal?: string;
+  latitude: number;
+  longitude: number;
+  timezone?: string;
+  connection?: {
+    asn?: number;
+    isp?: string;
+  };
+  [key: string]: any; // For any additional fields
+}
+
 export default function DashboardPage() {
   const { deviceId } = useParams<{ deviceId: string }>();
   const navigate = useNavigate();
@@ -34,6 +55,7 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<"console" | "command" | "logs">("console");
   const [uploadOpen, setUploadOpen] = useState<string | undefined | null>(undefined)
   const [cmd, setCmd] = useState("")
+  const [ipData, setIpData] = useState<IpData | null>(null);
 
 
   useEffect(() => {
@@ -59,6 +81,22 @@ export default function DashboardPage() {
 
     return () => unsub();
   }, [deviceId]);
+
+  useEffect(() => {
+    if (device?.ip) {
+      setLoading(true)
+      fetch("https://ipwho.is/" + (device as any).ip).then(re => {
+        if (!re.ok) console.log("IP details: Network response was not ok");
+        return re.json()
+      }).then((data) => {
+        setLoading(false);
+        setIpData(data);
+      })
+        .catch((err) => {
+          setLoading(false);
+        });
+    }
+  }, [device?.ip])
 
   function pushCommand() {
     if (!deviceId || !auth.currentUser) return;
@@ -113,7 +151,7 @@ export default function DashboardPage() {
             <div className="card-row">
               <div>
                 <div className="label">IP / Host</div>
-                <div className="value">{(device as any).ip || "—"}</div>
+                <div className="value">{device?.ip || "—"}</div>
               </div>
               <div>
                 <div className="label">Firmware</div>
@@ -125,7 +163,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <div className="label">Battery</div>
-                <div className="value">{device.metrics?.[device.metrics.length - 1]?.battery ?? "—"}%</div>
+                <div className="value">{device.metrics?.[device.metrics.length - 1]?.battery?.toFixed?.(2) ?? "—"}%</div>
               </div>
             </div>
 
@@ -164,8 +202,8 @@ export default function DashboardPage() {
                     <input type="text" value={cmd} onChange={e => { setCmd(e.target.value) }} placeholder="Enter command" />
                   </div>
                   <button onClick={() => { pushCommand() }} >Execute</button>
-                  <div style={{ backgroundColor: "#140827", width: "100%", padding: "5px", borderRadius: "5px", marginTop: "5px"  }}>
-                    <p style={{ color: device.commands?.at(0)?.output.startsWith("[STDOUT] ")? "white": "red" }} > &gt; {device.commands?.at(0)?.output?.replace("[STDOUT] ","")?.replace("[STDERR] ","")}</p>
+                  <div style={{ backgroundColor: "#140827", width: "100%", padding: "5px", borderRadius: "5px", marginTop: "5px" }}>
+                    <p style={{ color: device.commands?.at(0)?.output.startsWith("[STDOUT] ") ? "white" : "red" }} > &gt; {device.commands?.at(0)?.output?.replace("[STDOUT] ", "")?.replace("[STDERR] ", "")}</p>
                   </div>
                 </>
               )}
@@ -238,6 +276,31 @@ export default function DashboardPage() {
                   <div className="sval">{v}</div>
                 </div>
               )) : <div className="muted">No signals</div>}
+            </div>
+          </div>
+
+          <div className="card commands-card">
+            <h3>IP info<sup>{ipData?.type ? "[" + ipData.type + "]" : ""}</sup></h3>
+            <div className="commands-list">
+              {ipData ?
+                <>
+                  <div className="cmd-item" >
+                    <div className="cmd-name">City</div>
+                    <div className="cmd-status">{ipData.city}</div>
+                  </div>
+                  <div className="cmd-item" >
+                    <div className="cmd-name">Region</div>
+                    <div className="cmd-status">{ipData.region}</div>
+                  </div>
+                  <div className="cmd-item" >
+                    <div className="cmd-name">Country</div>
+                    <div className="cmd-status">{ipData.country}-[{ipData.country_code}]</div>
+                  </div>
+                  <div className="cmd-item" >
+                    <div className="cmd-name">ISP</div>
+                    <div className="cmd-status">{ipData.connection?.isp}</div>
+                  </div>
+                </> : <div className="muted">No IP data</div>}
             </div>
           </div>
         </aside>

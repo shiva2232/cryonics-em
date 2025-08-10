@@ -12,7 +12,14 @@ type DeviceData = {
   name?: string;
   deviceType?: string;
   signals?: Record<string, number>;
-  commands?: any[];
+  commands?: {
+    action: string,
+    completedAt: number,
+    errorMsg: "",
+    issuedAt: string,
+    output: string,
+    status: "pending" | "executing" | "completed" | "error"
+  }[];
   logs?: any[];
   metrics?: { ts: number; cpu?: number; mem?: number; net?: number; battery?: number }[];
   // ...other fields
@@ -92,7 +99,7 @@ export default function DashboardPage() {
         <button className="link" onClick={() => navigate(-1)}>← Back</button>
         <div className="title">
           <h1>{device.name || deviceId}</h1>
-          <div className="meta">{device.deviceType?.toUpperCase()}</div>
+          <div className="meta"><center>{device.deviceType?.toUpperCase()}</center></div>
         </div>
         <div className="right-controls">
           <button className="btn" onClick={() => { setUploadOpen(deviceId); console.log("hello world") }} >Flash / Upload</button>
@@ -157,6 +164,9 @@ export default function DashboardPage() {
                     <input type="text" value={cmd} onChange={e => { setCmd(e.target.value) }} placeholder="Enter command" />
                   </div>
                   <button onClick={() => { pushCommand() }} >Execute</button>
+                  <div style={{ backgroundColor: "#140827", width: "100%", padding: "5px", borderRadius: "5px", marginTop: "5px"  }}>
+                    <p style={{ color: device.commands?.at(0)?.output.startsWith("[STDOUT] ")? "white": "red" }} > &gt; {device.commands?.at(0)?.output?.replace("[STDOUT] ","")?.replace("[STDERR] ","")}</p>
+                  </div>
                 </>
               )}
               {activeTab === "logs" && (

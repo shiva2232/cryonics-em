@@ -92,7 +92,7 @@ export default function DashboardPage() {
         setLoading(false);
         setIpData(data);
       })
-        .catch((err) => {
+        .catch((_) => {
           setLoading(false);
         });
     }

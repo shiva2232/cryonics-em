@@ -3,7 +3,11 @@
     "users": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && auth.uid === $uid"
+        ".write": "auth != null && auth.uid === $uid",
+        "$deviceId": {
+          ".read": true,
+          ".write": true,
+        }
       }
     }
   }

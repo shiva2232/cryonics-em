@@ -7,6 +7,8 @@ import LineChart from "../components/LineChart";
 import ThreeDeviceScene from "../components/ThreeDeviceScene";
 import "../assets/css/dashboard.css";
 import PayloadUploadModal from "../components/PayloadUploadModal";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 type DeviceData = {
   name?: string;
@@ -85,7 +87,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (device?.ip) {
       setLoading(true)
-      fetch("https://ipwho.is/" + (device as any).ip).then(re => {
+      fetch("https://ipwho.is/" + device?.ip).then(re => {
         if (!re.ok) console.log("IP details: Network response was not ok");
         return re.json()
       }).then((data) => {
@@ -97,6 +99,86 @@ export default function DashboardPage() {
         });
     }
   }, [device?.ip])
+
+  useEffect(() => {
+    if(!loading && device?.deviceType=="android"){
+      const map = L.map('map'); // .setView([11.0682452, 77.0061453], 15)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+      // L.marker([11.0682452, 77.0061453]).addTo(map).bindPopup("Device Location").openPopup();
+    }
+  }, [loading==false]);
+
+  async function downloadConfig() {
+    if (!deviceId || !auth.currentUser) return;
+    const uid = auth.currentUser.uid;
+    const config = { uid: uid, deviceId: deviceId };
+    const encoder = new TextEncoder();
+    const encoded = encoder.encode(JSON.stringify(config));
+    // Convert your hex key to a Uint8Array
+    function hexToBytes(hex: string): Uint8Array {
+      const bytes = new Uint8Array(hex.length / 2);
+      for (let i = 0; i < bytes.length; i++) {
+        bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+      }
+      return bytes;
+    }
+
+    const fixedKeyHex = "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6";
+    const keyData = hexToBytes(fixedKeyHex);
+
+    // Import the fixed key
+    const key = await crypto.subtle.importKey(
+      "raw",
+      keyData,
+      { name: "AES-GCM" },
+      true,
+      ["encrypt"]
+    );
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, encoded);
+
+    const blob = new Blob([iv, new Uint8Array(ciphertext)], { type: "application/octet-stream" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "config.enc";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  const downloadExecutable = () => {
+    const link = document.createElement("a");
+    link.href = "/exec"; // from public folder
+    link.download = "exec";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const downloadFile = (val: string) => {
+    if (val == "executable") {
+      switch (device?.deviceType) {
+        case "linux":
+          downloadExecutable()
+          break;
+        default:
+          console.log("currently no other devices")
+          break;
+      }
+    } else if (val == "encrypted") {
+      switch (device?.deviceType) {
+        case "linux":
+          downloadConfig()
+          break;
+        default:
+          console.log("currently no other devices")
+          break;
+      }
+    }
+  }
 
   function pushCommand() {
     if (!deviceId || !auth.currentUser) return;
@@ -128,7 +210,7 @@ export default function DashboardPage() {
   }
 
   if (!deviceId) return <div className="dash-empty">No device selected</div>;
-  if (loading) return <div className="dash-loading">Loading...</div>;
+  // if (loading) return <div className="dash-loading">Loading...</div>;
   if (!device) return <div className="dash-empty">Device not found</div>;
 
   return (
@@ -203,7 +285,7 @@ export default function DashboardPage() {
                   </div>
                   <button onClick={() => { pushCommand() }} >Execute</button>
                   <div style={{ backgroundColor: "#140827", width: "100%", padding: "5px", borderRadius: "5px", marginTop: "5px" }}>
-                    <p style={{ color: device.commands?.at(0)?.output.startsWith("[STDOUT] ") ? "white" : "red" }} > &gt; {device.commands?.at(0)?.output?.replace("[STDOUT] ", "")?.replace("[STDERR] ", "")}</p>
+                    <p style={{ color: device.commands?.at(0)?.output.startsWith("[STDOUT] ") ? "white" : "red" }} >{device.commands?.at(0)?.output?.replace("[STDOUT] ", "")?.replace("[STDERR] ", "").split("\n").map((d,i)=><span key={i} style={{ display: "block" }}>{d}</span>)}</p>
                   </div>
                 </>
               )}
@@ -276,6 +358,36 @@ export default function DashboardPage() {
                   <div className="sval">{v}</div>
                 </div>
               )) : <div className="muted">No signals</div>}
+            </div>
+          </div>
+
+          {/* Downloads card */}<div className="card downloads-card">
+            <h3>Download Files</h3>
+            <div className="form-group mb-2">
+              <label className="label">Select Device Type</label>
+              <select disabled={true}
+                value={device.deviceType}
+              >
+                <option value="linux">Linux</option>
+                <option value="android">Android</option>
+                <option value="esp8266">ESP8266</option>
+              </select>
+            </div>
+
+            <div className="overview-actions">
+              <button className="btn primary" onClick={() => downloadFile("executable")}>
+                Download Executable
+              </button>
+              <button className="btn primary" onClick={() => downloadFile("encrypted")}>
+                Download Config
+              </button>
+            </div>
+          </div>
+
+          <div className="card location-card">
+            <h3>Device Location</h3>
+            <div id="map" style={{ height: "200px", width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+              <span>Location Unavailable</span>
             </div>
           </div>
 

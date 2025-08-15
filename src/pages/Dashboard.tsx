@@ -101,14 +101,21 @@ export default function DashboardPage() {
   }, [device?.ip])
 
   useEffect(() => {
-    if(!loading && device?.deviceType=="android"){
-      const map = L.map('map'); // .setView([11.0682452, 77.0061453], 15)
+    var map: L.Map;
+    console.log("test", device?.commands)
+    if (!loading && device?.deviceType == "android" && device?.commands?.at?.(0)?.output.startsWith("Location: ")) {
+      console.log("testing", device.commands)
+      const [lat, lng] = device?.commands?.at?.(0)?.output.replace("Location: ", "").split(",") as string[];
+      map = L.map('map').setView([parseFloat(lat), parseFloat(lng)], 15)
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
       }).addTo(map);
-      // L.marker([11.0682452, 77.0061453]).addTo(map).bindPopup("Device Location").openPopup();
+      L.marker([parseFloat(lat), parseFloat(lng)]).addTo(map).bindPopup("Device Location").openPopup();
     }
-  }, [loading==false]);
+    return () => {
+      map?.remove?.();
+    }
+  }, [device?.commands])
 
   async function downloadConfig() {
     if (!deviceId || !auth.currentUser) return;
@@ -131,7 +138,7 @@ export default function DashboardPage() {
     // Import the fixed key
     const key = await crypto.subtle.importKey(
       "raw",
-      keyData,
+      keyData as BufferSource,
       { name: "AES-GCM" },
       true,
       ["encrypt"]
@@ -158,11 +165,23 @@ export default function DashboardPage() {
     document.body.removeChild(link);
   };
 
+  const downloadApk = () => {
+    const link = document.createElement("a");
+    link.href = "/app-release.apk"; // from public folder
+    link.download = "app-release.apk";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const downloadFile = (val: string) => {
     if (val == "executable") {
       switch (device?.deviceType) {
         case "linux":
           downloadExecutable()
+          break;
+        case "android":
+          downloadApk();
           break;
         default:
           console.log("currently no other devices")
@@ -285,7 +304,7 @@ export default function DashboardPage() {
                   </div>
                   <button onClick={() => { pushCommand() }} >Execute</button>
                   <div style={{ backgroundColor: "#140827", width: "100%", padding: "5px", borderRadius: "5px", marginTop: "5px" }}>
-                    <p style={{ color: device.commands?.at(0)?.output.startsWith("[STDOUT] ") ? "white" : "red" }} >{device.commands?.at(0)?.output?.replace("[STDOUT] ", "")?.replace("[STDERR] ", "").split("\n").map((d,i)=><span key={i} style={{ display: "block" }}>{d}</span>)}</p>
+                    <p style={{ color: device.commands?.at(0)?.output.startsWith("[STDOUT] ") ? "white" : "red" }} >{device.commands?.at(0)?.output?.replace("[STDOUT] ", "")?.replace("[STDERR] ", "").split("\n").map((d, i) => <span key={i} style={{ display: "block" }}>{d}</span>)}</p>
                   </div>
                 </>
               )}
@@ -375,12 +394,20 @@ export default function DashboardPage() {
             </div>
 
             <div className="overview-actions">
-              <button className="btn primary" onClick={() => downloadFile("executable")}>
-                Download Executable
-              </button>
-              <button className="btn primary" onClick={() => downloadFile("encrypted")}>
-                Download Config
-              </button>
+              {device.deviceType == "linux" ?
+                <>
+                  <button className="btn primary" onClick={() => downloadFile("executable")}>
+                    Download Executable
+                  </button>
+                  <button className="btn primary" onClick={() => downloadFile("encrypted")}>
+                    Download Config
+                  </button>
+                </> : device.deviceType == "android" ?
+
+                  <button className="btn primary" onClick={() => downloadFile("executable")}>
+                    Download Application
+                  </button> : <></>
+              }
             </div>
           </div>
 

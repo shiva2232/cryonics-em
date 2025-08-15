@@ -6,7 +6,7 @@
         ".write": "auth != null && auth.uid === $uid",
         "$deviceId": {
           ".read": true,
-          ".write": true,
+          ".write": true
         }
       }
     }

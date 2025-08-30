@@ -1,6 +1,6 @@
 // src/pages/Dashboard.tsx
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ref, onValue, set, get } from "firebase/database";
 import { auth, db } from "../contexts/firebase";
 import LineChart from "../components/LineChart";

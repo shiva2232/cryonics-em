@@ -1,15 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import {
   ref,
   set,
-  push,
-  onValue,
-  get,
-  query,
-  limitToLast,
-  update,
-  remove,
-  child
+  get
 } from "firebase/database";
 import { auth, db as database } from "../contexts/firebase"; // Adjust path as needed
 import { useLocation } from "react-router-dom";

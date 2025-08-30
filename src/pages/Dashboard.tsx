@@ -1,6 +1,6 @@
 // src/pages/Dashboard.tsx
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { ref, onValue, set, get } from "firebase/database";
 import { auth, db } from "../contexts/firebase";
 import LineChart from "../components/LineChart";
@@ -49,7 +49,9 @@ interface IpData {
 }
 
 export default function DashboardPage() {
-  const { deviceId } = useParams<{ deviceId: string }>();
+  // const { deviceId } = useParams<{ deviceId: string }>();
+  const location = useLocation()
+  const { deviceId }= location.state;
   const navigate = useNavigate();
   const [device, setDevice] = useState<DeviceData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -102,7 +104,6 @@ export default function DashboardPage() {
 
   useEffect(() => {
     var map: L.Map;
-    console.log("test", device?.commands)
     if (!loading && device?.deviceType == "android" && device?.commands?.at?.(0)?.output.startsWith("Location: ")) {
       console.log("testing", device.commands)
       const [lat, lng] = device?.commands?.at?.(0)?.output.replace("Location: ", "").split(",") as string[];

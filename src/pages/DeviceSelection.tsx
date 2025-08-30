@@ -80,8 +80,12 @@ const DeviceSelection: React.FC = () => {
     setShowModal(false);
   };
 
-  const handleSelectExisting = (deviceId: string) => {
-    navigate(`/${deviceId}`)
+  const handleSelectExisting = (deviceId: string, deviceType: string) => {
+    if(deviceType=="esp8266"){
+      navigate(`/controller`, { state: { deviceId } })
+    }else {
+      navigate(`/`, { state: { deviceId } })
+    }
     // Navigate to dashboard
   };
 
@@ -106,7 +110,7 @@ const DeviceSelection: React.FC = () => {
               <div
                 key={device.id}
                 className="device-card"
-                onClick={() => handleSelectExisting(device.id)}
+                onClick={() => handleSelectExisting(device.id, device.deviceType)}
               >
                 <div className="device-icon">{deviceInfo?.icon}</div>
                 <h3>{device.name}</h3>

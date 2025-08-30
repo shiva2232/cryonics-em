@@ -2,7 +2,8 @@
   max-width: 1000px;
   margin: auto;
   padding: 20px;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Inter', system-ui, Arial, sans-serif;
+  color: var(--text);
 }
 
 header {
@@ -12,17 +13,18 @@ header {
 }
 
 .add-device-btn {
-  background: #4cafef;
+  background: var(--accent);
   border: none;
-  color: white;
+  color: #022233;
   padding: 10px 16px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 600;
 }
 
 .add-device-btn:hover {
-  background: #3b8edb;
+  filter: brightness(1.1);
 }
 
 .device-grid {
@@ -33,83 +35,97 @@ header {
 }
 
 .device-card {
-  background: white;
+  background: var(--card); /* solid opaque card */
   padding: 20px;
   border-radius: 12px;
   text-align: center;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s;
+  color: var(--text);
 }
 
 .device-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+  background: #0d1a2b; /* darker hover state */
 }
 
 .device-icon {
-  font-size: 36px;
+  font-size: 40px;
   margin-bottom: 10px;
 }
 
 .device-type {
   font-size: 13px;
-  color: gray;
+  color: var(--muted);
 }
 
-.no-devices, .loading-text {
+.no-devices,
+.loading-text {
   margin-top: 20px;
   text-align: center;
-  color: gray;
+  color: var(--muted);
 }
 
 /* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.6);
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .modal-content {
-  background: white;
+  background: var(--card); /* opaque background */
   padding: 25px;
   border-radius: 12px;
   width: 90%;
   max-width: 400px;
+  color: var(--text);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.5);
 }
 
 .modal-content h2 {
   margin-bottom: 15px;
 }
 
+/* Inputs & Dropdowns */
 .modal-content select,
 .modal-content input {
   width: 100%;
   padding: 10px 12px;
   margin-bottom: 12px;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid rgba(255,255,255,0.12);
   font-size: 14px;
-  box-sizing: border-box; /* Ensures padding doesn't mess width */
+  background: #0d1a2b; /* solid dark */
+  color: var(--text);
   outline: none;
+  appearance: none;
+}
+
+.modal-content select option {
+  background: #0d1a2b;
+  color: var(--text);
 }
 
 .modal-content select:focus,
 .modal-content input:focus {
-  border-color: #4cafef;
-  box-shadow: 0 0 3px rgba(76, 175, 239, 0.5);
+  border-color: var(--accent);
+  box-shadow: 0 0 4px rgba(56, 189, 248, 0.6);
 }
 
 .create-btn {
   background: #28a745;
   border: none;
-  color: white;
+  color: #fff;
   padding: 10px 16px;
   border-radius: 8px;
   cursor: pointer;
+  font-weight: 600;
 }
 
 .create-btn:hover {
